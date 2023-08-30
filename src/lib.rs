@@ -334,6 +334,7 @@
 #[cfg(all(not(feature = "std"), not(test)))]
 extern crate core as std;
 
+use quanta::Instant;
 #[cfg(feature = "std")]
 use std::error;
 use std::str::FromStr;
@@ -722,6 +723,7 @@ pub struct Record<'a> {
     module_path: Option<MaybeStaticStr<'a>>,
     file: Option<MaybeStaticStr<'a>>,
     line: Option<u32>,
+    log_time: Instant,
     #[cfg(feature = "kv_unstable")]
     key_values: KeyValues<'a>,
 }
@@ -891,6 +893,7 @@ impl<'a> RecordBuilder<'a> {
     /// - `module_path`: `None`
     /// - `file`: `None`
     /// - `line`: `None`
+    /// - `log_time`: `Option
     ///
     /// [`format_args!("")`]: https://doc.rust-lang.org/std/macro.format_args.html
     /// [`Metadata::builder().build()`]: struct.MetadataBuilder.html#method.build
@@ -903,6 +906,7 @@ impl<'a> RecordBuilder<'a> {
                 module_path: None,
                 file: None,
                 line: None,
+                log_time: Instant::now(),
                 #[cfg(feature = "kv_unstable")]
                 key_values: KeyValues(&None::<(kv::Key, kv::Value)>),
             },
@@ -969,6 +973,13 @@ impl<'a> RecordBuilder<'a> {
     #[inline]
     pub fn line(&mut self, line: Option<u32>) -> &mut RecordBuilder<'a> {
         self.record.line = line;
+        self
+    }
+
+    /// Set [`line`](struct.Record.html#method.log_time)
+    #[inline]
+    pub fn log_time(&mut self, log_time: Instant) -> &mut RecordBuilder<'a> {
+        self.record.log_time = log_time;
         self
     }
 
